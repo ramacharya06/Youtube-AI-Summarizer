@@ -1,0 +1,21 @@
+{
+  "name": "YT-in-Bits",
+  "short_name": "YTinBits",
+  "description": "AI-powered YouTube summaries in bits.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0c14",
+  "theme_color": "#ff3b3b",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
