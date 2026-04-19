@@ -36,7 +36,10 @@ Provide:
 
 Keep it concise but informative."""
 
-    api_key = os.getenv("YOUR_GOOGLE_API_KEY")
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise ValueError("GOOGLE_API_KEY not found. Please set it in your .env file.")
+
     llm = ChatGoogleGenerativeAI(
         model="gemini-3-flash-preview",
         google_api_key=api_key,

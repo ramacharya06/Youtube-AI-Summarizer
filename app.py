@@ -2,10 +2,10 @@ import base64
 from pathlib import Path
 
 import streamlit as st
+from dotenv import load_dotenv
 from main import summarize, MAX_CHARS  # all core logic lives in main.py
 
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
+load_dotenv()
 def img_to_b64(path: str) -> str:
     return base64.b64encode(Path(path).read_bytes()).decode()
 
