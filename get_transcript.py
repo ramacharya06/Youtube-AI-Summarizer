@@ -1,16 +1,36 @@
+import http.cookiejar
+import tempfile
+import os
+import requests
+import streamlit as st
 from youtube_transcript_api import YouTubeTranscriptApi
 from video_id_extractor import get_video_id
 
-# Extract video ID from URL
-
-
 def get_transcript(video_url):
-    transcript_data = YouTubeTranscriptApi.get_transcript(
-        get_video_id(video_url), 
-        languages=['en'],
-        cookies='cookies.txt'
-    )
-    transcript = " ".join([entry['text'] for entry in transcript_data])    
+    session = requests.Session()
+    
+    # Load cookies into the session manually
+    try:
+        cookie_jar = http.cookiejar.MozillaCookieJar('cookies.txt')
+        if os.path.exists('cookies.txt'):
+            cookie_jar.load(ignore_discard=True, ignore_expires=True)
+            session.cookies.update(cookie_jar)
+        elif "YOUTUBE_COOKIES" in st.secrets:
+            # In Streamlit Cloud, load from secrets
+            with tempfile.NamedTemporaryFile(mode='w+', delete=False) as temp_file:
+                temp_file.write(st.secrets["YOUTUBE_COOKIES"])
+                temp_path = temp_file.name
+            
+            cookie_jar = http.cookiejar.MozillaCookieJar(temp_path)
+            cookie_jar.load(ignore_discard=True, ignore_expires=True)
+            session.cookies.update(cookie_jar)
+            os.remove(temp_path)
+    except Exception as e:
+        print(f"Warning: Could not load cookies - {e}")
+        
+    api = YouTubeTranscriptApi(http_client=session)
+    transcript_data = api.fetch(get_video_id(video_url), languages=['en'])
+    transcript = " ".join([entry.text for entry in transcript_data])    
     return transcript
 
 if __name__ == "__main__":
