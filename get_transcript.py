@@ -17,14 +17,20 @@ def get_transcript(video_url):
             session.cookies.update(cookie_jar)
         elif "YOUTUBE_COOKIES" in st.secrets:
             # In Streamlit Cloud, load from secrets
-            with tempfile.NamedTemporaryFile(mode='w+', delete=False) as temp_file:
-                temp_file.write(st.secrets["YOUTUBE_COOKIES"])
+            cookie_str = st.secrets["YOUTUBE_COOKIES"].strip()
+            if not cookie_str.startswith("# Netscape HTTP Cookie File"):
+                cookie_str = "# Netscape HTTP Cookie File\n" + cookie_str
+                
+            with tempfile.NamedTemporaryFile(mode='w+', delete=False, encoding='utf-8') as temp_file:
+                temp_file.write(cookie_str)
                 temp_path = temp_file.name
             
-            cookie_jar = http.cookiejar.MozillaCookieJar(temp_path)
-            cookie_jar.load(ignore_discard=True, ignore_expires=True)
-            session.cookies.update(cookie_jar)
-            os.remove(temp_path)
+            try:
+                cookie_jar = http.cookiejar.MozillaCookieJar(temp_path)
+                cookie_jar.load(ignore_discard=True, ignore_expires=True)
+                session.cookies.update(cookie_jar)
+            finally:
+                os.remove(temp_path)
     except Exception as e:
         print(f"Warning: Could not load cookies - {e}")
         
